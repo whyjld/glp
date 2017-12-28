@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <string.h>
+#include <iostream>
 #include <stdexcept>
 
 #ifdef EGL_USE_X11
@@ -76,6 +77,12 @@ glContext::glContext()
 	
 	m_Width = width;
 	m_Height = height;
+
+#if defined(_DEBUG)
+    std::cout << "Vendor:    " << (const char*)glGetString(GL_VENDOR) << std::endl;
+    std::cout << "Renderer:  " << (const char*)glGetString(GL_RENDERER) << std::endl;
+    std::cout << "Version:   " << (const char*)glGetString(GL_VERSION) << std::endl;
+#endif
 }
 
 glContext::~glContext()

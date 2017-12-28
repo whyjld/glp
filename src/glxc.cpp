@@ -78,6 +78,12 @@ glContext::glContext()
 	{
 		throw std::runtime_error("GLEW initialize failed.");
 	}
+	
+#if defined(_DEBUG)
+    std::cout << "Vendor:    " << (const char*)glGetString(GL_VENDOR) << std::endl;
+    std::cout << "Renderer:  " << (const char*)glGetString(GL_RENDERER) << std::endl;
+    std::cout << "Version:   " << (const char*)glGetString(GL_VERSION) << std::endl;
+#endif
 }
 
 glContext::~glContext()
