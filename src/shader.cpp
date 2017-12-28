@@ -1,7 +1,6 @@
 #include <stdexcept>
 #include <iostream>
 #include <vector>
-#include <webp/decode.h>
 #include "shader.h"
 #include "tga.h"
 

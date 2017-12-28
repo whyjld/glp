@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
-#include <webp/decode.h>
+#include <decode.h>
 #include "texture.h"
 #include "tga.h"
 
