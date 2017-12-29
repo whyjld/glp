@@ -16,7 +16,7 @@ int glContext::ContextErrorHandler(Display *dpy, XErrorEvent *ev)
     return 0;
 }
 
-glContext::glContext()
+glContext::glContext(int width, int height)
  : m_Context(0)
 {
 	m_Display = XOpenDisplay(NULL);
@@ -25,7 +25,7 @@ glContext::glContext()
 		throw std::runtime_error("Can't get display.");
 	}
 	GLXFBConfig fbc;
-	m_Window = Createwindow(m_Display, fbc);
+	m_Window = Createwindow(m_Display, fbc, width, height);
 	
 	glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
 	glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB((const GLubyte *)"glXCreateContextAttribsARB");
@@ -100,7 +100,7 @@ void glContext::SwapBuffers() const
 }
 
 
-Window glContext::Createwindow(Display* display, GLXFBConfig& config)
+Window glContext::Createwindow(Display* display, GLXFBConfig& config, int width, int height)
 {
 	int visual_attribs[] =
 	{
@@ -173,7 +173,7 @@ Window glContext::Createwindow(Display* display, GLXFBConfig& config)
 
 	Window win = XCreateWindow(display,
 	                          RootWindow(display, vi->screen), 
-                              0, 360, 960, 360, 0, vi->depth, InputOutput, 
+                              0, 0, width, height, 0, vi->depth, InputOutput, 
                               vi->visual, 
                               CWBorderPixel | CWColormap | CWEventMask,
                               &swa);

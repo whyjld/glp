@@ -6,7 +6,7 @@
 
 #define SHADER_SOURCE(x) #x
 
-class Shader : public GLObj<GLuint>
+class Shader : public GLObj<GLuint, Shader>
 {
 public:
 	Shader(const char* source, size_t len, GLenum type);
@@ -20,7 +20,7 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, Shader>::operator=(v);
 	    }
 	    return *this;
 	}
@@ -29,12 +29,12 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, Shader>::operator=(v);
 	    }
 	    return *this;
 	}
-protected:
-    virtual void DeleteObject(GLuint obj);
+
+    static void DeleteObject(GLuint obj);
 private:
 	void LoadShader(const char* file);
 	void ShaderSource(const char* source, size_t len);

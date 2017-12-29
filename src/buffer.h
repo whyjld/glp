@@ -4,7 +4,7 @@
 #include <string>
 #include "globj.h"
 
-class Buffer : public GLObj<GLuint>
+class Buffer : public GLObj<GLuint, Buffer>
 {
 public:
 	Buffer(const void* buf, size_t len, GLenum type, GLenum usage = GL_STATIC_DRAW);
@@ -17,7 +17,7 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, Buffer>::operator=(v);
 	        m_Type = v.m_Type;
 	    }
 	    return *this;
@@ -27,17 +27,17 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, Buffer>::operator=(v);
 	        m_Type = v.m_Type;
 	    }
 	    return *this;
 	}
 	
 	void Bind();
-protected:
-    GLuint CreateObject();
-    virtual void DeleteObject(GLuint obj);
+
+    static void DeleteObject(GLuint obj);
 private:
+    GLuint CreateObject();
     GLenum m_Type;
 };
 

@@ -9,7 +9,7 @@
 class glContext
 {
 public:
-	glContext();
+	glContext(int width, int height);
 	glContext(glContext&) = delete;
 	
 	~glContext();
@@ -26,7 +26,7 @@ public:
 		return m_Height;
 	}	
 private:
-	Window Createwindow(Display* display, GLXFBConfig& config);
+	Window Createwindow(Display* display, GLXFBConfig& config, int width, int height);
 	void Destroywindow(Window window, Colormap colormap, Display* display);
 
 	static int ContextErrorHandler(Display *dpy, XErrorEvent *ev);

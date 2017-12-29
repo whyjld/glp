@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 
-class Program : public GLObj<GLuint>
+class Program : public GLObj<GLuint, Program>
 {
 public:
 	Program(const std::vector<Shader>& shaders);
@@ -25,7 +25,7 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, Program>::operator=(v);
 	        m_UniformIndices = v.m_UniformIndices;
 	    }
 	    return *this;
@@ -35,7 +35,7 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, Program>::operator=(v);
 	        m_UniformIndices = v.m_UniformIndices;
 	    }
 	    return *this;
@@ -49,8 +49,8 @@ public:
 	bool setUniform(const char* name, const glm::vec4& v);
 	
 	bool setUniform(const char* name, const glm::mat4& v);
-protected:
-    virtual void DeleteObject(GLuint obj);
+
+    static void DeleteObject(GLuint obj);
 private:
     std::unordered_map<std::string, GLuint> m_UniformIndices;
 };

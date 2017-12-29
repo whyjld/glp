@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
-#include <decode.h>
+#include <FreeImagePlus.h>
 #include "texture.h"
 #include "tga.h"
 
@@ -92,76 +92,94 @@ void Texture::TexImage(const void* image, GLsizei length, GLenum format, GLsizei
 	glTexParameteri(m_Type, GL_TEXTURE_WRAP_S, wrap);
 	glTexParameteri(m_Type, GL_TEXTURE_WRAP_T, wrap);
 	
+    m_Type = GL_TEXTURE_2D;
 	m_Width = width;
 	m_Height = height;
 }
 
 bool Texture::Load(const char* file)
 {
-	GLenum format;
-
-	uint8_t* image = nullptr;
-	
-	enum TexType
-	{
-		ttNone,
-		ttTGA,
-		ttWebP,
-	};
-	TexType texType = ttNone;
-	GLsizei width = 0;
-	GLsizei height = 0;
-	if(nullptr != strstr(file, ".tga"))
-	{
-		if(!LoadTGA(file, width, height, format, image))
-		{
-			return false;;
-		}
-		texType = ttTGA;
-	}
-	else if(nullptr != strstr(file, ".webp"))
-	{
-		std::ifstream inf(file, std::ios::binary | std::ios::in);
-		if(!inf)
-		{
-			return false;
-		}
-		inf.seekg(0, std::ios::end);
-		std::vector<uint8_t> buf(inf.tellg());
-		inf.seekg(0, std::ios::beg);
-		inf.read((char*)&buf[0], buf.size());
-		if((size_t)inf.gcount() != buf.size())
-		{
-			return false;
-		}
-		int w, h;
-		image = WebPDecodeRGBA(&buf[0], buf.size(), &w, &h);
-		width = w;
-		height = h;
-		format = GL_RGBA;
-		
-		texType = ttWebP;
-	}
-	
-	if(nullptr == image || ttNone == texType)
-	{
+    fipImage image;
+    if(!image.load(file))
+    {
         return false;
-	}
+    }
+    
+    int bpp = image.getBitsPerPixel();
+    GLenum format;
+    switch(image.getColorType())
+    {
+    case FIC_RGB:
+        if(24 != bpp)
+        {
+            if(!image.convertTo24Bits())
+            {
+                return false;
+            }
+            bpp = 24;
+        }
+        format = GL_RGB;
+        break;
+    case FIC_RGBALPHA:
+        if(32 != bpp)
+        {
+            if(!image.convertTo32Bits())
+            {
+                return false;
+            }
+            bpp = 32;
+        }
+        format = GL_RGBA;
+        break;
+    default:
+        return false;
+    }
 
-    TexImage(image, 0, format, width, height);
-    m_Type = texType;
+    int width = image.getWidth();    
+    int height = image.getHeight();
+    int scanline = image.getScanWidth();
+    uint8_t* rgb = new uint8_t[height * scanline];
+    uint8_t* bgr = image.accessPixels();
+    
+    if(24 == bpp)
+    {
+        for(int y = 0;y < height;++y)
+        {
+            uint8_t* src = bgr + (height - 1 - y) * scanline;
+            uint8_t* dst = rgb + y * scanline;
+            for(int x = 0;x < width;++x)
+            {
+                dst[0] = src[2];
+                dst[1] = src[1];
+                dst[2] = src[0];
+                
+                dst += 3;
+                src += 3;            
+            }
+        }
+    }
+    else
+    {
+        for(int y = 0;y < height;++y)
+        {
+            uint8_t* src = bgr + (height - 1 - y) * scanline;
+            uint8_t* dst = rgb + y * scanline;
+            for(int x = 0;x < width;++x)
+            {
+                dst[0] = src[2];
+                dst[1] = src[1];
+                dst[2] = src[0];
+                dst[3] = src[3];
+                
+                dst += 4;
+                src += 4;            
+            }
+        }
+    }
+    
+    TexImage(rgb, 0, format, width, height);
 
-	switch(texType)
-	{
-		case ttTGA:
-			delete[] image;
-			break;
-		case ttWebP:
-			WebPFree(image);
-			break;
-		case ttNone:
-		default:
-			break;
-	};
+    delete[] rgb;
+
 	return true;
 }

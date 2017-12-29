@@ -1,37 +1,36 @@
-#ifndef _TEXTURE_h_
-#define _TEXTURE_h_
+#ifndef _RENDER_BUFFER_h_
+#define _RENDER_BUFFER_h_
 
 #include <string>
 #include "globj.h"
 
-class Texture : public GLObj<GLuint, Texture>
+class Renderbuffer : public GLObj<GLuint, Renderbuffer>
 {
 public:
-	explicit Texture(const char* file);
-	explicit Texture(GLenum type = GL_TEXTURE_2D);
-	Texture(const Texture& v);	
-	Texture(Texture&& v);
+	Renderbuffer(GLenum format, GLsizei width, GLsizei height);
+	Renderbuffer(const Renderbuffer& v);	
+	Renderbuffer(Renderbuffer&& v);
 
-	~Texture();
+	~Renderbuffer();
 
-	Texture& operator=(const Texture& v)
+	Renderbuffer& operator=(const Renderbuffer& v)
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint, Texture>::operator=(v);
-	        m_Type = v.m_Type;
+	        GLObj<GLuint, Renderbuffer>::operator=(v);
+	        m_Format = v.m_Format;
 	        m_Width = v.m_Width;
 	        m_Height = v.m_Height;
 	    }
 	    return *this;
 	}
 	
-	Texture& operator=(Texture&& v)
+	Renderbuffer& operator=(Renderbuffer&& v)
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint, Texture>::operator=(v);
-	        m_Type = v.m_Type;
+	        GLObj<GLuint, Renderbuffer>::operator=(v);
+	        m_Format = v.m_Format;
 	        m_Width = v.m_Width;
 	        m_Height = v.m_Height;
 	    }
@@ -53,12 +52,12 @@ public:
 	}
 
     static void DeleteObject(GLuint obj);
-private:
+protected:
     GLuint CreateObject();
-
-    GLenum m_Type;
+private:
+    GLenum m_Format;
 	GLsizei m_Width;
 	GLsizei m_Height;
 };
 
-#endif//_TEXTURE_h_
+#endif//_RENDER_BUFFER_h_

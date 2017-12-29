@@ -4,7 +4,7 @@
 #include <string>
 #include "globj.h"
 
-class VertexArray : public GLObj<GLuint>
+class VertexArray : public GLObj<GLuint, VertexArray>
 {
 public:
 	VertexArray();
@@ -17,7 +17,7 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, VertexArray>::operator=(v);
 	    }
 	    return *this;
 	}
@@ -26,7 +26,7 @@ public:
 	{
 	    if(this != &v)
 	    {
-	        GLObj<GLuint>::operator=(v);
+	        GLObj<GLuint, VertexArray>::operator=(v);
 	    }
 	    return *this;
 	}
@@ -36,10 +36,10 @@ public:
 	void VertexAttrib(GLuint index, GLuint size, GLenum type, GLboolean normalized, GLsizei stride, GLsizei offset); 
 	
 	void Unbind();
-protected:
-    GLuint CreateObject();
-    virtual void DeleteObject(GLuint obj);
+
+    static void DeleteObject(GLuint obj);
 private:
+    GLuint CreateObject();
 };
 
 #endif//_VERTEXARRAY_h_

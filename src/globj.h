@@ -4,17 +4,17 @@
 #include "glcontext.h"
 #include <algorithm>
 
-template<typename _T>
+template<typename _T, typename _D>
 class GLObj
 {
 public:
-	GLObj(_T&& o)
+	GLObj(_T o)
 	 : m_Obj(o)
 	 , m_Usage(new size_t(1))
 	{
 	}
 	
-	GLObj(const GLObj<_T>& v)
+	GLObj(const GLObj<_T, _D>& v)
 	 : m_Obj(v.m_Obj)
 	 , m_Usage(v.m_Usage)
 	{
@@ -24,7 +24,7 @@ public:
 	    }
 	}
 	
-	GLObj(GLObj<_T>&& v)
+	GLObj(GLObj<_T, _D>&& v)
 	 : m_Obj(v.m_Obj)
 	 , m_Usage(v.m_Usage)
 	{
@@ -35,7 +35,7 @@ public:
 	    Release(m_Obj, m_Usage);
 	}
 	
-	GLObj<_T>& operator=(const GLObj<_T>& v)
+	GLObj<_T, _D>& operator=(const GLObj<_T, _D>& v)
 	{
 	    if(this != &v)
 	    {
@@ -55,7 +55,7 @@ public:
 	    return *this;
 	}
 	
-	GLObj<_T>& operator=(GLObj<_T>&& v)
+	GLObj<_T, _D>& operator=(GLObj<_T, _D>&& v)
 	{
 	    if(this != &v)
 	    {
@@ -75,15 +75,13 @@ public:
 	    return m_Obj;
 	}
 protected:
-    virtual void DeleteObject(_T obj) = 0;
-    
     void Release(_T obj, size_t* usage)
     {
 	    if(nullptr != usage && 0 == --(*usage))
 	    {
 	        if(0 != obj)
 	        {
-	            DeleteObject(obj);
+	            _D::DeleteObject(obj);
 	        }
 	        delete usage;
 	    }

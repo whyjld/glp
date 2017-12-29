@@ -39,6 +39,23 @@ Program::Program(const Shader* shaders, size_t count)
 		}
 		throw std::runtime_error(msg.c_str());
 	}
+	
+	GLint uniforms = 0, maxLength = 0;;
+	glGetProgramiv(m_Obj, GL_ACTIVE_UNIFORMS, &uniforms);
+	glGetProgramiv(m_Obj, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+	
+	GLenum type;
+	GLint size;
+	std::vector<GLchar> name(maxLength + 1);
+	for(GLint i = 0;i < uniforms;++i)
+	{
+    	GLsizei length = 0;
+	    glGetActiveUniform(m_Obj, i, name.size(), &length, &size, &type, &name[0]);
+	    if(length > 0)
+	    {
+        	m_UniformIndices[&name[0]] = glGetUniformLocation(m_Obj, &name[0]);
+	    }
+	}
 }
 
 Program::Program(const Program& v)
