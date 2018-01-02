@@ -2,9 +2,13 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
+#if defined(_FREE_IMAGE)
 #include <FreeImagePlus.h>
-#include "texture.h"
+#else
+#include <decode.h>
 #include "tga.h"
+#endif
+#include "texture.h"
 
 Texture::Texture(const char* file)
  : GLObj(CreateObject())
@@ -99,6 +103,7 @@ void Texture::TexImage(const void* image, GLsizei length, GLenum format, GLsizei
 
 bool Texture::Load(const char* file)
 {
+#if defined(_FREE_IMAGE)
     fipImage image;
     if(!image.load(file))
     {
@@ -180,6 +185,72 @@ bool Texture::Load(const char* file)
     TexImage(rgb, 0, format, width, height);
 
     delete[] rgb;
+#else
+	GLenum format;
 
+	uint8_t* image = nullptr;
+	
+	enum TexType
+	{
+		ttNone,
+		ttTGA,
+		ttWebP,
+	};
+	TexType texType = ttNone;
+	GLsizei width = 0;
+	GLsizei height = 0;
+	if(nullptr != strstr(file, ".tga"))
+	{
+		if(!LoadTGA(file, width, height, format, image))
+		{
+			return false;;
+		}
+		texType = ttTGA;
+	}
+	else if(nullptr != strstr(file, ".webp"))
+	{
+		std::ifstream inf(file, std::ios::binary | std::ios::in);
+		if(!inf)
+		{
+			return false;
+		}
+		inf.seekg(0, std::ios::end);
+		std::vector<uint8_t> buf(inf.tellg());
+		inf.seekg(0, std::ios::beg);
+		inf.read((char*)&buf[0], buf.size());
+		if((size_t)inf.gcount() != buf.size())
+		{
+			return false;
+		}
+		int w, h;
+		image = WebPDecodeRGBA(&buf[0], buf.size(), &w, &h);
+		width = w;
+		height = h;
+		format = GL_RGBA;
+		
+		texType = ttWebP;
+	}
+	
+	if(nullptr == image || ttNone == texType)
+	{
+        return false;
+	}
+
+    TexImage(image, 0, format, width, height);
+    m_Type = texType;
+
+	switch(texType)
+	{
+		case ttTGA:
+			delete[] image;
+			break;
+		case ttWebP:
+			WebPFree(image);
+			break;
+		case ttNone:
+		default:
+			break;
+	};
 	return true;
+#endif
 }
