@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
-#if defined(_FREE_IMAGE)
+#if defined(_FREEIMAGE)
 #include <FreeImagePlus.h>
 #else
 #include <decode.h>
@@ -103,7 +103,7 @@ void Texture::TexImage(const void* image, GLsizei length, GLenum format, GLsizei
 
 bool Texture::Load(const char* file)
 {
-#if defined(_FREE_IMAGE)
+#if defined(_FREEIMAGE)
     fipImage image;
     if(!image.load(file))
     {
@@ -251,6 +251,6 @@ bool Texture::Load(const char* file)
 		default:
 			break;
 	};
-	return true;
 #endif
+	return true;
 }
